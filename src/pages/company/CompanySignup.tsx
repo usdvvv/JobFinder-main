@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -179,26 +178,28 @@ const CompanySignup = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="absolute top-0 left-0 w-full h-full bg-hero-pattern opacity-50 z-0"></div>
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-900/30 to-blue-950/50 z-1"></div>
+      {/* Updated background with better contrast */}
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-800 to-slate-900 opacity-90 z-0"></div>
       
       <div className="flex min-h-screen items-center justify-center px-4 py-12">
         <AnimatedSection animation="slide-up" className="w-full max-w-md z-10">
-          <Card className="w-full backdrop-blur-sm bg-white/95 border-primary/10 shadow-xl">
+          {/* Improved card background for better contrast */}
+          <Card className="w-full border-primary/20 shadow-xl bg-white dark:bg-slate-800">
             <CardHeader className="space-y-1">
               <div className="w-full flex justify-center mb-2">
-                <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 flex items-center justify-center">
                   <Building2 className="h-6 w-6 text-white" />
                 </div>
               </div>
-              <CardTitle className="text-2xl font-bold text-center">Register Your Company</CardTitle>
-              <CardDescription className="text-center">
+              {/* Improved text contrast */}
+              <CardTitle className="text-2xl font-bold text-center text-gray-800 dark:text-white">Register Your Company</CardTitle>
+              <CardDescription className="text-center text-gray-600 dark:text-gray-200">
                 Create a company account to post job listings
               </CardDescription>
             </CardHeader>
             
             {errors.general && (
-              <div className="mx-6 mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md flex items-center text-destructive text-sm">
+              <div className="mx-6 mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-md flex items-center text-red-700 dark:text-red-300 text-sm">
                 <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
                 {errors.general}
               </div>
@@ -207,22 +208,24 @@ const CompanySignup = () => {
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="companyName">Company Name</Label>
+                  {/* Improved label contrast */}
+                  <Label htmlFor="companyName" className="text-gray-800 dark:text-gray-100">Company Name</Label>
                   <Input
                     id="companyName"
                     name="companyName"
                     placeholder="Acme Corporation"
                     value={formData.companyName}
                     onChange={handleChange}
-                    className={`${errors.companyName ? 'border-destructive' : ''}`}
+                    className={`${errors.companyName ? 'border-red-400' : 'border-gray-300 dark:border-gray-600'} 
+                      bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                   />
                   {errors.companyName && (
-                    <p className="text-destructive text-xs mt-1">{errors.companyName}</p>
+                    <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.companyName}</p>
                   )}
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Company Email</Label>
+                  <Label htmlFor="email" className="text-gray-800 dark:text-gray-100">Company Email</Label>
                   <Input
                     id="email"
                     name="email"
@@ -230,45 +233,48 @@ const CompanySignup = () => {
                     placeholder="info@yourcompany.com"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`${errors.email ? 'border-destructive' : ''}`}
+                    className={`${errors.email ? 'border-red-400' : 'border-gray-300 dark:border-gray-600'} 
+                      bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                   />
                   {errors.email && (
-                    <p className="text-destructive text-xs mt-1">{errors.email}</p>
+                    <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.email}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="industry">Industry</Label>
+                  <Label htmlFor="industry" className="text-gray-800 dark:text-gray-100">Industry</Label>
                   <Input
                     id="industry"
                     name="industry"
                     placeholder="Technology, Healthcare, Finance, etc."
                     value={formData.industry}
                     onChange={handleChange}
-                    className={`${errors.industry ? 'border-destructive' : ''}`}
+                    className={`${errors.industry ? 'border-red-400' : 'border-gray-300 dark:border-gray-600'} 
+                      bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                   />
                   {errors.industry && (
-                    <p className="text-destructive text-xs mt-1">{errors.industry}</p>
+                    <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.industry}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="website">Company Website (optional)</Label>
+                  <Label htmlFor="website" className="text-gray-800 dark:text-gray-100">Company Website (optional)</Label>
                   <Input
                     id="website"
                     name="website"
                     placeholder="https://www.yourcompany.com"
                     value={formData.website}
                     onChange={handleChange}
-                    className={`${errors.website ? 'border-destructive' : ''}`}
+                    className={`${errors.website ? 'border-red-400' : 'border-gray-300 dark:border-gray-600'} 
+                      bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                   />
                   {errors.website && (
-                    <p className="text-destructive text-xs mt-1">{errors.website}</p>
+                    <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.website}</p>
                   )}
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-gray-800 dark:text-gray-100">Password</Label>
                   <div className="relative">
                     <Input
                       id="password"
@@ -276,12 +282,13 @@ const CompanySignup = () => {
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
                       onChange={handleChange}
-                      className={`pr-10 ${errors.password ? 'border-destructive' : ''}`}
+                      className={`pr-10 ${errors.password ? 'border-red-400' : 'border-gray-300 dark:border-gray-600'} 
+                        bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                     />
                     <button
                       type="button"
                       onClick={toggleShowPassword}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -291,12 +298,12 @@ const CompanySignup = () => {
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="text-destructive text-xs mt-1">{errors.password}</p>
+                    <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.password}</p>
                   )}
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" className="text-gray-800 dark:text-gray-100">Confirm Password</Label>
                   <div className="relative">
                     <Input
                       id="confirmPassword"
@@ -304,15 +311,16 @@ const CompanySignup = () => {
                       type={showPassword ? 'text' : 'password'}
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className={`${errors.confirmPassword ? 'border-destructive' : ''}`}
+                      className={`${errors.confirmPassword ? 'border-red-400' : 'border-gray-300 dark:border-gray-600'} 
+                        bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                     />
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-destructive text-xs mt-1">{errors.confirmPassword}</p>
+                    <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.confirmPassword}</p>
                   )}
                   
                   {formData.password && formData.confirmPassword && formData.password === formData.confirmPassword && (
-                    <p className="text-green-600 text-xs mt-1 flex items-center">
+                    <p className="text-green-600 dark:text-green-400 text-xs mt-1 flex items-center">
                       <CheckCircle className="h-3 w-3 mr-1" /> Passwords match
                     </p>
                   )}
@@ -325,20 +333,20 @@ const CompanySignup = () => {
                     onCheckedChange={(checked) => {
                       setAcceptTerms(checked as boolean);
                     }}
-                    className={`${errors.terms ? 'border-destructive' : ''} mt-1`}
+                    className={`${errors.terms ? 'border-red-400' : 'border-gray-300 dark:border-gray-600'} mt-1`}
                   />
                   <div>
                     <Label 
                       htmlFor="terms" 
-                      className="text-sm font-normal cursor-pointer"
+                      className="text-sm font-normal cursor-pointer text-gray-800 dark:text-gray-200"
                     >
                       I accept the{' '}
-                      <Link to="/terms" className="text-blue-600 hover:underline">
+                      <Link to="/terms" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                         terms and conditions
                       </Link>
                     </Label>
                     {errors.terms && (
-                      <p className="text-destructive text-xs mt-1">{errors.terms}</p>
+                      <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.terms}</p>
                     )}
                   </div>
                 </div>
@@ -347,7 +355,7 @@ const CompanySignup = () => {
               <CardFooter className="flex flex-col space-y-4">
                 <Button 
                   type="submit" 
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -363,9 +371,9 @@ const CompanySignup = () => {
                   )}
                 </Button>
                 
-                <p className="text-center text-sm text-muted-foreground">
+                <p className="text-center text-sm text-gray-700 dark:text-gray-300">
                   Already have an account?{' '}
-                  <Link to="/company/login" className="text-blue-600 hover:underline">
+                  <Link to="/company/login" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                     Sign in
                   </Link>
                 </p>
