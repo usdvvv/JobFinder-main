@@ -1,0 +1,308 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221 83% 53%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 219 83% 45%;
+    --secondary-foreground: 210 40% 98%;
+
+    --accent: 221 83% 53%;
+    --accent-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .background {
+    @apply fixed top-0 left-0 w-full h-full z-[-1];
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+  }
+
+  .particles {
+    @apply fixed top-0 left-0 w-full h-full z-0 pointer-events-none;
+  }
+
+  .particle {
+    @apply absolute rounded-full bg-blue-400 pointer-events-none opacity-0;
+  }
+
+  .intro-text, .role-text {
+    @apply fixed text-transparent text-4xl font-bold text-center opacity-0;
+    background: linear-gradient(45deg, #60a5fa, #3b82f6, #2563eb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    transform: scale(0.5) translateY(100vh);
+  }
+
+  .choice-container {
+    @apply flex flex-col gap-4 opacity-0 translate-y-[50px];
+  }
+
+  .choice-button {
+    @apply relative w-80 p-8 border-none rounded-2xl cursor-pointer;
+    background: linear-gradient(145deg, #2563eb, #1d4ed8);
+    transform-style: preserve-3d;
+    transform: perspective(1000px);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .choice-button::before {
+    content: '';
+    @apply absolute inset-[-4px] rounded-2xl opacity-0;
+    background: linear-gradient(45deg, #60a5fa, #3b82f6, #2563eb);
+    transform: translateZ(-10px);
+    filter: blur(8px);
+    transition: opacity 0.6s ease;
+  }
+
+  .choice-button:hover {
+    transform: perspective(1000px) translateZ(30px) rotateX(10deg);
+  }
+
+  .choice-button:hover::before {
+    @apply opacity-100;
+  }
+
+  .button-content {
+    @apply relative z-[1] flex flex-col items-center gap-4;
+    transform: translateZ(20px);
+    transition: transform 0.6s ease;
+  }
+
+  .choice-button:hover .button-content {
+    transform: translateZ(50px);
+  }
+
+  .button-icon {
+    @apply text-5xl;
+  }
+
+  .button-title {
+    @apply text-white text-2xl font-bold;
+  }
+
+  .button-subtitle {
+    @apply text-blue-200 text-sm;
+  }
+
+  .glow {
+    @apply absolute w-[100px] h-[100px] rounded-full pointer-events-none z-0 opacity-0;
+    background: radial-gradient(circle at center, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
+  }
+
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-md border border-white/10;
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.animate-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animate-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animate-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animate-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animate-delay-500 {
+  animation-delay: 500ms;
+}
+
+/* Make scrolling smooth for the whole app */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+#root {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
