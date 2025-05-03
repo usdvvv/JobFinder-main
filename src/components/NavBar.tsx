@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu, X, Briefcase, Home, FileText, Video, UserRound, Code, Brain, Bot, LogOut, Puzzle, MessageSquare } from 'lucide-react';
+import { Menu, X, Briefcase, Home, FileText, Video, UserRound, Code, Brain, Bot, LogOut, Puzzle, MessageSquare, SwitchCamera } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import ThemeToggle from './ThemeToggle';
 
@@ -27,6 +27,10 @@ const NavBar = () => {
       description: "You have been successfully logged out.",
     });
     navigate('/');
+  };
+
+  const handleSwitchRole = () => {
+    navigate('/roles');
   };
 
   useEffect(() => {
@@ -94,6 +98,16 @@ const NavBar = () => {
                 <ThemeToggle />
               </div>
               
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-2 bg-purple-600 hover:bg-purple-700 text-white border-none"
+                onClick={handleSwitchRole}
+              >
+                <SwitchCamera className="h-4 w-4 mr-2" />
+                Switch Role
+              </Button>
+              
               {isLoggedIn ? (
                 <Button 
                   variant="outline" 
@@ -147,6 +161,14 @@ const NavBar = () => {
             <MobileNavLink to="/peer-chat" icon={<MessageSquare className="h-5 w-5" />} text="Peer Chat" />
             <MobileNavLink to="/ai-assistant" icon={<Bot className="h-5 w-5" />} text="AI Assistant" />
             <MobileNavLink to="/entertainment" icon={<Puzzle className="h-5 w-5" />} text="Entertainment" />
+            
+            <button
+              className="w-full px-3 py-2 rounded-md text-base font-medium text-white bg-purple-600 hover:bg-purple-700 flex items-center"
+              onClick={handleSwitchRole}
+            >
+              <SwitchCamera className="h-5 w-5 mr-3" />
+              Switch Role
+            </button>
             
             <div className="pt-2 border-t border-gray-200/30 mt-2">
               {isLoggedIn ? (
