@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,11 +22,14 @@ import {
   Video,
   Mic,
   MicOff,
-  VideoOff
+  VideoOff,
+  X
 } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import AnimatedSection from '@/components/AnimatedSection';
 import WellnessUserOverview from "@/components/WellnessUserOverview";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 
 type Message = {
   id: string;
@@ -33,6 +37,8 @@ type Message = {
   sender: 'user' | 'therapist';
   timestamp: Date;
 };
+
+type ExerciseType = 'breathing' | 'rejection' | 'journaling' | 'visualization' | null;
 
 const therapistResponses = [
   "It sounds like you're feeling stressed about your job search. That's completely normal, especially in today's competitive market. What specific aspects of the process have been most challenging for you?",
@@ -60,12 +66,53 @@ const AITherapist = () => {
     micMuted: false,
     videoMuted: false
   });
+
+  // New state for exercises
+  const [activeExercise, setActiveExercise] = useState<ExerciseType>(null);
+  const [exerciseStep, setExerciseStep] = useState(1);
+  const [journalEntry, setJournalEntry] = useState('');
+  const [breathingProgress, setBreathingProgress] = useState(0);
+  const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const breathingIntervalRef = useRef<number | null>(null);
   
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Effect for breathing exercise
+  useEffect(() => {
+    if (activeExercise === 'breathing' && breathingIntervalRef.current === null) {
+      startBreathingExercise();
+    }
+
+    return () => {
+      if (breathingIntervalRef.current) {
+        clearInterval(breathingIntervalRef.current);
+        breathingIntervalRef.current = null;
+      }
+    };
+  }, [activeExercise]);
+
+  const startBreathingExercise = () => {
+    setBreathingProgress(0);
+    setBreathingPhase('inhale');
+    
+    breathingIntervalRef.current = window.setInterval(() => {
+      setBreathingProgress(prevProgress => {
+        if (prevProgress >= 100) {
+          setBreathingPhase(prev => {
+            if (prev === 'inhale') return 'hold';
+            if (prev === 'hold') return 'exhale';
+            return 'inhale';
+          });
+          return 0;
+        }
+        return prevProgress + 1;
+      });
+    }, 50);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -136,6 +183,262 @@ const AITherapist = () => {
       ...videoCall,
       videoMuted: !videoCall.videoMuted
     });
+  };
+
+  const startExercise = (type: ExerciseType) => {
+    setActiveExercise(type);
+    setExerciseStep(1);
+    setJournalEntry('');
+  };
+
+  const closeExercise = () => {
+    if (breathingIntervalRef.current) {
+      clearInterval(breathingIntervalRef.current);
+      breathingIntervalRef.current = null;
+    }
+    setActiveExercise(null);
+    setExerciseStep(1);
+  };
+
+  const nextExerciseStep = () => {
+    setExerciseStep(prev => prev + 1);
+  };
+
+  const renderExerciseContent = () => {
+    switch (activeExercise) {
+      case 'breathing':
+        return (
+          <div className="space-y-6 text-center">
+            <h3 className="text-xl font-semibold">{breathingPhase === 'inhale' ? 'Breathe In' : breathingPhase === 'hold' ? 'Hold' : 'Breathe Out'}</h3>
+            
+            <div className="w-32 h-32 rounded-full bg-primary/10 mx-auto flex items-center justify-center relative">
+              <div 
+                className={`w-32 h-32 rounded-full absolute transition-all duration-500 ${
+                  breathingPhase === 'inhale' ? 'bg-blue-500/20 scale-100' : 
+                  breathingPhase === 'hold' ? 'bg-green-500/20 scale-95' : 
+                  'bg-purple-500/20 scale-90'
+                }`}
+              ></div>
+              <span className="text-4xl z-10">
+                {breathingPhase === 'inhale' ? '↑' : breathingPhase === 'hold' ? '•' : '↓'}
+              </span>
+            </div>
+            
+            <Progress value={breathingProgress} className="w-full h-2" />
+            
+            <p className="text-muted-foreground">
+              {exerciseStep === 1 ? 'Follow the rhythm for 1 minute to calm your nerves' : 
+               exerciseStep === 2 ? 'Feel your body relaxing with each breath' : 
+               'Almost done! Notice how much calmer you feel now'}
+            </p>
+            
+            {exerciseStep < 3 && (
+              <Button onClick={nextExerciseStep} className="mt-4">
+                Continue
+              </Button>
+            )}
+          </div>
+        );
+      
+      case 'rejection':
+        return (
+          <div className="space-y-6">
+            {exerciseStep === 1 && (
+              <>
+                <p>Remember that rejection in job hunting is not personal. Let's reframe some negative thoughts into positive ones:</p>
+                <div className="border rounded-md p-4 bg-muted/50">
+                  <p className="font-medium text-red-500">Negative thought:</p>
+                  <p className="mb-4">"I was rejected because I'm not good enough."</p>
+                  <p className="font-medium text-green-500">Positive reframing:</p>
+                  <p>"This role wasn't the right match for my skills. The right opportunity is still out there."</p>
+                </div>
+                <Button onClick={nextExerciseStep} className="w-full">Continue</Button>
+              </>
+            )}
+            {exerciseStep === 2 && (
+              <>
+                <p>Now, let's practice with your own experience. Think of a recent rejection and reframe it:</p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">The rejection I experienced:</label>
+                    <Textarea placeholder="I didn't get a call back after my interview..." className="h-20" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">My positive reframing:</label>
+                    <Textarea placeholder="This gives me a chance to..." className="h-20" />
+                  </div>
+                </div>
+                <Button onClick={nextExerciseStep} className="w-full mt-4">Continue</Button>
+              </>
+            )}
+            {exerciseStep === 3 && (
+              <>
+                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                  <h4 className="font-medium text-green-700 dark:text-green-300 mb-2">Great work!</h4>
+                  <p className="text-sm text-green-600 dark:text-green-400">
+                    Building resilience takes practice. Try to apply this reframing technique whenever you face rejection.
+                  </p>
+                </div>
+                <div className="space-y-2 mt-4">
+                  <h4 className="font-medium">Remember:</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Every 'no' brings you closer to a 'yes'</li>
+                    <li>Rejection often has nothing to do with your qualifications</li>
+                    <li>Each interview is valuable practice</li>
+                    <li>The right opportunity will appreciate your unique skills</li>
+                  </ul>
+                </div>
+                <Button onClick={closeExercise} className="w-full mt-4">
+                  Complete Exercise
+                </Button>
+              </>
+            )}
+          </div>
+        );
+      
+      case 'journaling':
+        return (
+          <div className="space-y-6">
+            {exerciseStep === 1 && (
+              <>
+                <p>Confidence journaling helps you recognize your achievements and strengths. Let's start by listing your professional accomplishments:</p>
+                <Textarea 
+                  placeholder="List 3-5 accomplishments you're proud of in your career or education..."
+                  className="h-32"
+                  value={journalEntry}
+                  onChange={(e) => setJournalEntry(e.target.value)}
+                />
+                <Button 
+                  onClick={nextExerciseStep} 
+                  className="w-full"
+                  disabled={!journalEntry.trim() || journalEntry.length < 10}
+                >
+                  Continue
+                </Button>
+              </>
+            )}
+            {exerciseStep === 2 && (
+              <>
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                  <h4 className="font-medium text-blue-700 dark:text-blue-300 mb-2">Your Achievements:</h4>
+                  <p className="text-sm text-blue-600 dark:text-blue-400 whitespace-pre-wrap">
+                    {journalEntry}
+                  </p>
+                </div>
+                <p className="text-sm">
+                  Before interviews, review these accomplishments to boost your confidence. Consider adding to this list regularly.
+                </p>
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">For your next interview, prepare to discuss:</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>How these accomplishments demonstrate your skills</li>
+                    <li>The challenges you overcame to achieve them</li>
+                    <li>What you learned from these experiences</li>
+                  </ul>
+                </div>
+                <Button onClick={closeExercise} className="w-full mt-4">
+                  Save Journal Entry
+                </Button>
+              </>
+            )}
+          </div>
+        );
+      
+      case 'visualization':
+        return (
+          <div className="space-y-6">
+            {exerciseStep === 1 && (
+              <>
+                <p>Visualization helps reduce stress by mentally rehearsing successful outcomes. Let's practice:</p>
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 p-6 rounded-lg">
+                  <p className="text-center text-sm mb-4">Close your eyes for a moment and take a deep breath...</p>
+                  <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 mx-auto flex items-center justify-center">
+                    <span className="text-2xl">🧘</span>
+                  </div>
+                </div>
+                <Button onClick={nextExerciseStep} className="w-full mt-4">Continue</Button>
+              </>
+            )}
+            {exerciseStep === 2 && (
+              <>
+                <p className="text-sm">Imagine yourself in an upcoming interview or work situation:</p>
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Visualize yourself:</label>
+                    <Textarea 
+                      placeholder="I see myself confidently answering questions, maintaining good eye contact..." 
+                      className="h-24"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">How does it feel?</label>
+                    <Textarea 
+                      placeholder="I feel calm and prepared. My voice is steady..." 
+                      className="h-24"
+                    />
+                  </div>
+                </div>
+                <Button onClick={nextExerciseStep} className="w-full mt-4">Continue</Button>
+              </>
+            )}
+            {exerciseStep === 3 && (
+              <>
+                <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                  <h4 className="font-medium text-purple-700 dark:text-purple-300 mb-2">Visualization Complete</h4>
+                  <p className="text-sm text-purple-600 dark:text-purple-400">
+                    Regular visualization can significantly reduce workplace stress and improve performance in high-pressure situations.
+                  </p>
+                </div>
+                <div className="space-y-2 mt-4">
+                  <h4 className="font-medium">Practice tips:</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Spend 5 minutes each morning visualizing success</li>
+                    <li>Include sensory details in your visualization</li>
+                    <li>Visualize overcoming challenges calmly</li>
+                    <li>Focus on the feeling of accomplishment</li>
+                  </ul>
+                </div>
+                <Button onClick={closeExercise} className="w-full mt-4">
+                  Complete Exercise
+                </Button>
+              </>
+            )}
+          </div>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  const getExerciseTitle = () => {
+    switch (activeExercise) {
+      case 'breathing':
+        return 'Guided Breathing Exercise';
+      case 'rejection':
+        return 'Reframing Rejection';
+      case 'journaling':
+        return 'Confidence Journaling';
+      case 'visualization':
+        return 'Stress Visualization';
+      default:
+        return '';
+    }
+  };
+
+  const getExerciseDescription = () => {
+    switch (activeExercise) {
+      case 'breathing':
+        return 'A 5-minute breathing exercise to calm interview nerves';
+      case 'rejection':
+        return 'Techniques to build resilience after job rejections';
+      case 'journaling':
+        return 'Document your achievements to boost interview confidence';
+      case 'visualization':
+        return 'Visualize success and manage workplace stress';
+      default:
+        return '';
+    }
   };
 
   return (
@@ -496,7 +799,7 @@ const AITherapist = () => {
                               <p className="text-sm text-muted-foreground mb-3">
                                 A 5-minute breathing exercise to calm interview nerves
                               </p>
-                              <Button size="sm" className="w-full">
+                              <Button size="sm" className="w-full" onClick={() => startExercise('breathing')}>
                                 Start Exercise <ArrowRight className="ml-2 h-4 w-4" />
                               </Button>
                             </div>
@@ -506,7 +809,7 @@ const AITherapist = () => {
                               <p className="text-sm text-muted-foreground mb-3">
                                 Techniques to build resilience after job rejections
                               </p>
-                              <Button size="sm" className="w-full">
+                              <Button size="sm" className="w-full" onClick={() => startExercise('rejection')}>
                                 Start Exercise <ArrowRight className="ml-2 h-4 w-4" />
                               </Button>
                             </div>
@@ -516,7 +819,7 @@ const AITherapist = () => {
                               <p className="text-sm text-muted-foreground mb-3">
                                 Document your achievements to boost interview confidence
                               </p>
-                              <Button size="sm" className="w-full">
+                              <Button size="sm" className="w-full" onClick={() => startExercise('journaling')}>
                                 Start Exercise <ArrowRight className="ml-2 h-4 w-4" />
                               </Button>
                             </div>
@@ -526,7 +829,7 @@ const AITherapist = () => {
                               <p className="text-sm text-muted-foreground mb-3">
                                 Visualize success and manage workplace stress
                               </p>
-                              <Button size="sm" className="w-full">
+                              <Button size="sm" className="w-full" onClick={() => startExercise('visualization')}>
                                 Start Exercise <ArrowRight className="ml-2 h-4 w-4" />
                               </Button>
                             </div>
@@ -605,6 +908,35 @@ const AITherapist = () => {
           </div>
         </div>
       </div>
+
+      {/* Exercise Dialog */}
+      <Dialog open={activeExercise !== null} onOpenChange={(open) => !open && closeExercise()}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{getExerciseTitle()}</DialogTitle>
+            <DialogDescription>
+              {getExerciseDescription()}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {renderExerciseContent()}
+          </div>
+          
+          <DialogClose asChild>
+            <Button 
+              type="button" 
+              variant="outline"
+              size="icon"
+              className="absolute right-4 top-4"
+              onClick={closeExercise}
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
