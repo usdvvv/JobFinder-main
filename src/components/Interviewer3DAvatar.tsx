@@ -1,11 +1,10 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
-import { Video, Mic, MicOff, Clock, HeartPulse } from 'lucide-react';
+import { Video, Mic, MicOff, Clock, HeartPulse, CameraOff } from 'lucide-react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import React from 'react';
 import * as THREE from 'three';
-import WellnessUserOverview from './WellnessUserOverview';
 
 function Model({ speaking }: { speaking: boolean }) {
   const { scene } = useGLTF('/white_mesh.glb');
@@ -155,14 +154,15 @@ const Interviewer3DAvatar = ({
       {showWellnessData && (
         <div className="absolute top-0 left-0 w-full z-30">
           <div className="bg-gradient-to-br from-purple-900/90 to-blue-950/90 backdrop-blur-lg border border-white/10 shadow-lg rounded-md mb-2">
-            <div className="bg-gradient-to-r from-blue-700 to-indigo-700 px-4 py-2 text-white rounded-t-md flex items-center">
-              <HeartPulse size={18} className="mr-2 text-red-400 animate-pulse" />
-              <h3 className="text-base font-semibold">Your Wellness Overview</h3>
+            <div className="bg-gradient-to-r from-red-700 to-red-900 px-4 py-2 text-white rounded-t-md flex items-center">
+              <CameraOff size={18} className="mr-2 text-white" />
+              <h3 className="text-base font-semibold">Interviewer Camera Turned Off</h3>
             </div>
-            <div className="p-3 rounded-b-md">
-              <WellnessUserOverview hideTitle hideCard forceConnected />
+            <div className="p-3 rounded-b-md text-center text-white/80 text-sm">
+              <p>Video feed is currently unavailable.</p>
+              <p>Audio connection is still active.</p>
             </div>
-            <div className="absolute -right-1 -top-1 w-3 h-3 bg-green-500 rounded-full border border-white shadow-lg"></div>
+            <div className="absolute -right-1 -top-1 w-3 h-3 bg-red-500 rounded-full border border-white shadow-lg"></div>
           </div>
         </div>
       )}
