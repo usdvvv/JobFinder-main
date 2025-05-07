@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import AIInterviewer from '@/components/AIInterviewer';
 import PracticeQuestion from '@/components/PracticeQuestion';
 
-
+// Practice questions data
 const practiceQuestions = [
   {
     id: 1,
@@ -117,8 +118,6 @@ const industryQuestions = {
   ]
 };
 
-
-
 const InterviewPrep = () => {
   const [showCodingChallenge, setShowCodingChallenge] = useState(false);
   const [selectedChallenge, setSelectedChallenge] = useState({
@@ -211,6 +210,7 @@ const MockInterviews = () => {
   const [selectedIndustry, setSelectedIndustry] = useState('Tech');
   const [selectedDifficulty, setSelectedDifficulty] = useState('Mid-level');
   const [showInterview, setShowInterview] = useState(false);
+  const [elevenLabsAgentId] = useState('n1pNc0aPoEIZdxIEhzRo'); // Store the Eleven Labs agent ID
 
   return (
     <div className="space-y-6">
@@ -352,7 +352,7 @@ const MockInterviews = () => {
                 </Button>
               </CardTitle>
               <CardDescription>
-                Speak naturally with our AI interviewer and receive instant feedback
+                Speak naturally with our AI interviewer powered by Eleven Labs and receive instant feedback
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -360,6 +360,7 @@ const MockInterviews = () => {
                 jobDescription={jobDescription} 
                 industry={selectedIndustry}
                 difficulty={selectedDifficulty}
+                agentId={elevenLabsAgentId}
               />
             </CardContent>
           </Card>
@@ -370,131 +371,140 @@ const MockInterviews = () => {
 };
 
 const PracticeQuestions = () => {
+  const [activeQuestion, setActiveQuestion] = useState(practiceQuestions[0]);
+  const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState('general');
+  const [showingQuestion, setShowingQuestion] = useState(false);
+  const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
+  
+  // Get questions based on selected category
+  const getQuestions = () => {
+    if (selectedCategory === 'industry' && selectedIndustry) {
+      return industryQuestions[selectedIndustry as keyof typeof industryQuestions] || [];
+    }
+    return practiceQuestions;
+  };
+  
+  const currentQuestions = getQuestions();
+  
+  const handleNextQuestion = () => {
+    if (activeQuestionIndex < currentQuestions.length - 1) {
+      setActiveQuestionIndex(prev => prev + 1);
+      setActiveQuestion(currentQuestions[activeQuestionIndex + 1]);
+    }
+  };
+  
+  const handlePrevQuestion = () => {
+    if (activeQuestionIndex > 0) {
+      setActiveQuestionIndex(prev => prev - 1);
+      setActiveQuestion(currentQuestions[activeQuestionIndex - 1]);
+    }
+  };
+  
+  const handleSelectQuestion = (question: any) => {
+    setActiveQuestion(question);
+    setActiveQuestionIndex(currentQuestions.findIndex(q => q.id === question.id));
+    setShowingQuestion(true);
+  };
+
+  const handleSelectIndustry = (industry: string) => {
+    setSelectedIndustry(industry);
+    setSelectedCategory('industry');
+    
+    // Reset to first question in this industry
+    const industryQs = industryQuestions[industry as keyof typeof industryQuestions] || [];
+    if (industryQs.length > 0) {
+      setActiveQuestion(industryQs[0]);
+      setActiveQuestionIndex(0);
+      setShowingQuestion(true);
+    } else {
+      setShowingQuestion(false);
+    }
+  };
+  
+  const handleBackToList = () => {
+    setShowingQuestion(false);
+  };
+
   return (
     <AnimatedSection animation="fade-in">
       <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Common Interview Questions</CardTitle>
-            <CardDescription>
-              Practice answering questions frequently asked in interviews for your field
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 rounded-md border border-border hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium">Tell me about yourself.</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    The most common opening question in interviews. How would you introduce yourself professionally?
-                  </p>
-                </div>
-                <Button variant="ghost" size="icon">
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
+        {showingQuestion ? (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-medium">{selectedCategory === 'industry' ? selectedIndustry : 'Common'} Interview Questions</h2>
+              <Button variant="outline" onClick={handleBackToList}>
+                Back to Questions
+              </Button>
             </div>
+            <PracticeQuestion
+              question={activeQuestion.question}
+              description={activeQuestion.description}
+              suggestedAnswer={activeQuestion.suggestedAnswer}
+              tips={activeQuestion.tips}
+              onNext={handleNextQuestion}
+              onPrevious={handlePrevQuestion}
+              hasNext={activeQuestionIndex < currentQuestions.length - 1}
+              hasPrevious={activeQuestionIndex > 0}
+            />
+          </div>
+        ) : (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Common Interview Questions</CardTitle>
+                <CardDescription>
+                  Practice answering questions frequently asked in interviews for your field
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {practiceQuestions.map((question) => (
+                  <div 
+                    key={question.id}
+                    className="p-4 rounded-md border border-border hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer"
+                    onClick={() => handleSelectQuestion(question)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-medium">{question.question}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {question.description}
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => handleSelectQuestion(question)}>
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
             
-            <div className="p-4 rounded-md border border-border hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium">What are your greatest strengths?</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Focus on qualities relevant to the job and provide specific examples.
-                  </p>
+            <Card>
+              <CardHeader>
+                <CardTitle>Industry-Specific Questions</CardTitle>
+                <CardDescription>
+                  Practice with questions tailored to your specific field and role
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {Object.keys(industryQuestions).map((industry) => (
+                    <Button 
+                      key={industry}
+                      variant="outline" 
+                      className="h-auto py-6 flex flex-col space-y-2"
+                      onClick={() => handleSelectIndustry(industry)}
+                    >
+                      <FileText className="h-8 w-8 mb-1" />
+                      <span>{industry}</span>
+                    </Button>
+                  ))}
                 </div>
-                <Button variant="ghost" size="icon">
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="p-4 rounded-md border border-border hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium">Why should we hire you?</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Highlight your unique value proposition and how you can solve the company's problems.
-                  </p>
-                </div>
-                <Button variant="ghost" size="icon">
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="p-4 rounded-md border border-border hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium">Where do you see yourself in 5 Years?</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Show ambition while aligning your goals with the company's growth trajectory.
-                  </p>
-                </div>
-                <Button variant="ghost" size="icon">
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full">
-              View All Practice Questions
-            </Button>
-          </CardFooter>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Industry-Specific Questions</CardTitle>
-            <CardDescription>
-              Practice with questions tailored to your specific field and role
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              <Button variant="outline" className="h-auto py-6 flex flex-col space-y-2">
-                <FileText className="h-8 w-8 mb-1" />
-                <span>Software Engineering</span>
-              </Button>
-              
-              <Button variant="outline" className="h-auto py-6 flex flex-col space-y-2">
-                <FileText className="h-8 w-8 mb-1" />
-                <span>Data Science</span>
-              </Button>
-              
-              <Button variant="outline" className="h-auto py-6 flex flex-col space-y-2">
-                <FileText className="h-8 w-8 mb-1" />
-                <span>Product Management</span>
-              </Button>
-              
-              <Button variant="outline" className="h-auto py-6 flex flex-col space-y-2">
-                <FileText className="h-8 w-8 mb-1" />
-                <span>Marketing</span>
-              </Button>
-              
-              <Button variant="outline" className="h-auto py-6 flex flex-col space-y-2">
-                <FileText className="h-8 w-8 mb-1" />
-                <span>Sales</span>
-              </Button>
-              
-              <Button variant="outline" className="h-auto py-6 flex flex-col space-y-2">
-                <FileText className="h-8 w-8 mb-1" />
-                <span>Design</span>
-              </Button>
-              
-              <Button variant="outline" className="h-auto py-6 flex flex-col space-y-2">
-                <FileText className="h-8 w-8 mb-1" />
-                <span>Finance</span>
-              </Button>
-              
-              <Button variant="outline" className="h-auto py-6 flex flex-col space-y-2">
-                <FileText className="h-8 w-8 mb-1" />
-                <span>Healthcare</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </AnimatedSection>
   );
