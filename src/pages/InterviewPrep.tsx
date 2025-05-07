@@ -10,6 +10,8 @@ import CodingLeaderboard from '@/components/CodingLeaderboard';
 import CodingChallenge from '@/components/CodingChallenge';
 import { Textarea } from "@/components/ui/textarea";
 import AIInterviewer from '@/components/AIInterviewer';
+import PracticeQuestion from '@/components/PracticeQuestion';
+
 
 const InterviewPrep = () => {
   const [showCodingChallenge, setShowCodingChallenge] = useState(false);
